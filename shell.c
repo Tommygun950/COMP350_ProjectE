@@ -19,7 +19,7 @@ void kill(char* process);
 #define MAX_PIDS 10
 int running_processes[MAX_PIDS];
 int num_running_processes = 0;
-char* pids = "abcdefghij";
+char* pids = "123456789";
 
 int main(){
 	enableInterrupts();
@@ -288,29 +288,7 @@ void create(char* input_filename) {
 }
 
 // Kill the specified process by its ID
-void kill(char* process_id_str) {
-    int i, j;
-
-    // Debug: Print process ID you are trying to kill
-    syscall(0, "Attempting to kill process: ");
-    syscall(0, process_id_str);  // Output the process ID
-
-    // Search for the process in the list of running processes
-    for (i = 0; i < num_running_processes; i++) {
-        if (running_processes[i] == process_id_str[0]) {  // Compare the first character of process_id_str
-            syscall(0, "Found process, killing...\r\n");
-            syscall(9, process_id_str);  // Kill the process using syscall(9)
-            syscall(0, "Process terminated.\r\n");
-
-            // Optionally, shift the processes in the array
-            for (j = i; j < num_running_processes - 1; j++) {
-                running_processes[j] = running_processes[j + 1];
-            }
-            num_running_processes--;  // Decrement the number of running processes
-            return;  // Exit the function
-        }
-    }
-
-    // If the process ID is not found
-    syscall(0, "Process not found.\r\n");
+void kill(char* buffer) {
+	int pid = buffer[5] - '0';
+	syscall(9, pid, 0, 0);
 }

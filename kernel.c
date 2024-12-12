@@ -18,7 +18,10 @@ void deleteFile(char* filename);
 void writeFile(char* dataBuffer, char* fileName, int sectorsRequired);
 //ProjectE Functions
 void handleTimerInterrupt(int segment, int sp);
-void killProcess(char* processNumber);
+void killProcess(int pid);
+
+int processWaitingOn[9];
+
 
 int processActive[8];
 int processStackPointer[8];
@@ -317,16 +320,17 @@ void handleTimerInterrupt(int segment, int sp){
     returnFromTimer(segment, sp); //Returns control to the next process.
 }
 
-void killProcess(char* processNumber){
-    int pid = processNumber[0] - 'a'; 
-    
-    if (pid >= 0 && pid <= 9) {  
-        setKernelDataSegment();
-        
-        //mark the process as inactive.
-        processActive[pid] = 0;
+void killProcess(int pid){    
+    int i;
+    int dataSeg = setKernelDataSegment();
+    processActive[pid] = 0;
 
-        restoreDataSegment();
-	}
+    for(i=0; i < 9; i++){
+        if(processWaitingOn[i] == pid){
+            processActive[i] = 1;
+        }
+    }
+
+    restoreDataSegment(dataSeg);
 }
 
